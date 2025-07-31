@@ -8,10 +8,20 @@ import os
 import sys
 import socket
 
+class Pager:
+		
+		paging = False
+		
+		def __init__(self, hostname, ip, buttonPin, LED):
+			self.hostname = hostname
+			self.ip = ip
+			self.LED = LED
+			self.buttonPin = buttonPin
+			self.paging = False
 
 
 
-GPIO.setmode(GPIO.BOARD) #Sets the pin numbering system to Board conventions
+
 
 
 
@@ -19,14 +29,32 @@ GPIO.setmode(GPIO.BOARD) #Sets the pin numbering system to Board conventions
 HOST = '0.0.0.0' # this can stay 0.0.0.0
 PORT = 65433 # The port the pagers are sending commands on
 
+PAGER_LED_CONFIG = {
+    "knight1": 11,
+    
 
-r_pin = 11 # Board pin for the red LED to signal being paged
+}
+
+
+
 # Setting up the pager light
-GPIO.setup(r_pin, GPIO.OUT)
-GPIO.output(r_pin, GPIO.LOW)
+#GPIO.setup(r_pin, GPIO.OUT)
+#GPIO.output(r_pin, GPIO.LOW)
 
 # Enacts the command
-def control_led(state):
+def setup_gpio():
+    GPIO.setmode(GPIO.BOARD)
+    for pin in PAGER_LED_CONFIG.values():
+        print(f"setup pin {pin}")
+        GPIO.setup(pin, GPIO.OUT)
+        GPIO.output(pin, GPIO.LOW)
+
+def control_led(pager_name, state):
+    pin = PAGER_LED_CONFIG.get(pager_name)
+    if not pin:
+        print(f"unknown pager requested, please add {pager_name} to the dictionary")
+        return
+        
     match state:
         case 'on':
             GPIO.output(r_pin, GPIO.HIGH)
@@ -38,6 +66,7 @@ def control_led(state):
 
 
 def main():
+    setup_gpio()
     
     try:
 		# Listens to the given port, waiting for the client script to
@@ -58,12 +87,17 @@ def main():
                         if not data:
                             break
                         command = data.decode().strip().lower()
-                        print(f"Received Command: '{command}'")
-                        control_led(command)
-                        conn.sendall(b"Command Received")
+                        if ':' in command:
+                            pager_name, state = command.split(":", 1)
+                            control_led(pager_name, state)
+                            print(f"Received Command: '{command}'")
+                            conn.sendall(b"Command Received")
+                        else:
+                            print(f"Malformed command: {command}")
+                        
                 
                 
-                
+                 
         
         
 
@@ -77,5 +111,6 @@ def main():
     finally:
         GPIO.cleanup()
 
-
-main()
+if __name__ == "__main__":
+    
+    main()
