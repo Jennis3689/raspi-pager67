@@ -57,11 +57,11 @@ def control_led(pager_name, state):
         
     match state:
         case 'on':
-            GPIO.output(r_pin, GPIO.HIGH)
+            GPIO.output(pin, GPIO.HIGH)
         case 'off':
-            GPIO.output(r_pin,GPIO.LOW)
+            GPIO.output(pin,GPIO.LOW)
         case _:
-            GPIO.output(r_pin,GPIO.LOW)
+            GPIO.output(pin,GPIO.LOW)
 
 
 

@@ -23,7 +23,11 @@ import os
 CSV_FILE_NAME = "pager_log.csv"
 HEADER = ["Target", "Turned On", "Turned Off", "Time Elapsed"]
 PORT = 65433
-clientHostName = "knight1"
+clientHostName = "knight2"
+pager_configs = [
+        {"hostname": "knight2", "ip": "192.168.200.227", "button_pin": 7, "led_pin": 13},
+        #Add more pagers here!
+    ]
 
 class Pager:
     
@@ -141,10 +145,7 @@ def send_command(command, target_ip):
     return False
 
 if __name__ == "__main__":
-    pager_configs = [
-        {"hostname": "knight1", "ip": "192.168.200.228", "button_pin": 7, "led_pin": 13},
-        #Add more pagers here!
-    ]
+
     
     manager = PagerNetworkManager(pager_configs)
     try:
